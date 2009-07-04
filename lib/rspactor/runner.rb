@@ -31,7 +31,7 @@ module RSpactor
     def start_listener
       @inspector = Inspector.new(dir)
 
-      Listener.new(Inspector::EXTENSIONS) do |files|
+      Listener.new(:extensions => Inspector::EXTENSIONS) do |files|
         spec_changed_files(files) unless git_head_changed?
       end.run(dir)
     end

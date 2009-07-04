@@ -2,7 +2,7 @@ require 'rspactor/listener'
 
 describe RSpactor::Listener do
   before(:all) do
-    @listener = described_class.new(%w(rb erb haml))
+    @listener = described_class.new(:extensions => %w(rb erb haml))
   end
   
   it "should be timestamped" do

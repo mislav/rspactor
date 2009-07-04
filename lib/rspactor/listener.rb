@@ -4,22 +4,32 @@ OSX.require_framework '/System/Library/Frameworks/CoreServices.framework/Framewo
 module RSpactor
   # based on http://rails.aizatto.com/2007/11/28/taming-the-autotest-beast-with-fsevents/
   class Listener
-    attr_reader :last_check, :callback, :valid_extensions
+    attr_reader :last_check, :callback, :options, :dirs
 
-    def initialize(valid_extensions = nil)
-      @valid_extensions = valid_extensions
+    # {:extensions => ['rb', 'haml'], :relative_paths => true}
+    def initialize(options = {})
+      @options = options
       timestamp_checked
-
+      
       @callback = lambda do |stream, ctx, num_events, paths, marks, event_ids|
         changed_files = extract_changed_files_from_paths(split_paths(paths, num_events))
         timestamp_checked
+        changed_files = relativize_path_names(changed_files) if options[:relative_paths]
         yield changed_files unless changed_files.empty?
+      end
+    end
+    
+    def relativize_path_names(files)
+      for file in files
+        if dir = @dirs.find { |p| file.index(p) == 0 }
+          file.sub!(dir + '/', '')
+        end
       end
     end
 
     def run(directories)
-      dirs = Array(directories)
-      stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, dirs, OSX::KFSEventStreamEventIdSinceNow, 0.5, 0)
+      @dirs = Array(directories)
+      stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, @dirs, OSX::KFSEventStreamEventIdSinceNow, 0.5, 0)
       unless stream
         $stderr.puts "Failed to create stream"
         exit(1)
@@ -82,7 +92,7 @@ module RSpactor
     end
 
     def valid_extension?(file)
-      valid_extensions.nil? or valid_extensions.include?(file_extension(file))
+      options[:extensions].nil? or options[:extensions].include?(file_extension(file))
     end
   end
 end
