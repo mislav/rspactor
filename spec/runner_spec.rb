@@ -37,20 +37,6 @@ describe RSpactor::Runner do
     $stdout = @old_stdout
   end
   
-  it 'should use the current directory to run in' do
-    mock_instance = mock('RunnerInstance')
-    mock_instance.stub!(:start)
-    RSpactor::Runner.should_receive(:new).with(Dir.pwd, {}).and_return(mock_instance)
-    RSpactor::Runner.start
-  end
-  
-  it 'should take an optional directory to run in' do
-    mock_instance = mock('RunnerInstance')
-    mock_instance.stub!(:start)
-    RSpactor::Runner.should_receive(:new).with('/tmp/mu', {}).and_return(mock_instance)
-    RSpactor::Runner.start(:run_in => '/tmp/mu')
-  end
-  
   describe "start" do
     before(:each) do
       @runner = described_class.new('/my/path')
@@ -81,7 +67,7 @@ describe RSpactor::Runner do
   
       it "should run all specs if Interactor isn't interrupted" do
         @interactor.should_receive(:wait_for_enter_key).and_return(nil)
-        @runner.should_receive(:run_spec_command).with('/my/path/spec')
+        @runner.should_receive(:run_spec_command).with('spec')
         setup
       end
   

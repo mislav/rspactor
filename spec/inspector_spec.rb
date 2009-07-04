@@ -11,75 +11,75 @@ describe RSpactor::Inspector do
   
   describe "#translate" do
     it "should consider all controllers when application_controller changes" do
-      translate('/project/app/controllers/application_controller.rb').should == ['/project/spec/controllers']
-      translate('/project/app/controllers/application.rb').should == ['/project/spec/controllers']
+      translate('/project/app/controllers/application_controller.rb').should == ['spec/controllers']
+      translate('/project/app/controllers/application.rb').should == ['spec/controllers']
     end
     
     it "should translate files under 'app/' directory" do
       translate('/project/app/controllers/foo_controller.rb').should ==
-        ['/project/spec/controllers/foo_controller_spec.rb']
+        ['spec/controllers/foo_controller_spec.rb']
     end
     
     it "should translate templates" do
-      translate('/project/app/views/foo/bar.erb').should == ['/project/spec/views/foo/bar.erb_spec.rb']
+      translate('/project/app/views/foo/bar.erb').should == ['spec/views/foo/bar.erb_spec.rb']
       translate('/project/app/views/foo/bar.html.haml').should ==
-        ['/project/spec/views/foo/bar.html.haml_spec.rb', '/project/spec/views/foo/bar.html_spec.rb']
+        ['spec/views/foo/bar.html.haml_spec.rb', 'spec/views/foo/bar.html_spec.rb']
     end
     
     it "should consider all views when application_helper changes" do
-      translate('/project/app/helpers/application_helper.rb').should == ['/project/spec/helpers', '/project/spec/views']
+      translate('/project/app/helpers/application_helper.rb').should == ['spec/helpers', 'spec/views']
     end
     
     it "should consider related templates when a helper changes" do
       translate('/project/app/helpers/foo_helper.rb').should ==
-        ['/project/spec/helpers/foo_helper_spec.rb', '/project/spec/views/foo']
+        ['spec/helpers/foo_helper_spec.rb', 'spec/views/foo']
     end
     
     it "should translate files under deep 'lib/' directory" do
       translate('/project/lib/awesum/rox.rb').should ==
-        ['/project/spec/lib/awesum/rox_spec.rb', '/project/spec/awesum/rox_spec.rb', '/project/spec/rox_spec.rb']
+        ['spec/lib/awesum/rox_spec.rb', 'spec/awesum/rox_spec.rb', 'spec/rox_spec.rb']
     end
     
     it "should translate files under shallow 'lib/' directory" do
-      translate('lib/runner.rb').should == ['/project/spec/lib/runner_spec.rb', '/project/spec/runner_spec.rb']
+      translate('lib/runner.rb').should == ['spec/lib/runner_spec.rb', 'spec/runner_spec.rb']
     end
     
     it "should handle relative paths" do
-      translate('foo.rb').should == ['/project/spec/foo_spec.rb']
+      translate('foo.rb').should == ['spec/foo_spec.rb']
     end
     
     it "should handle files without extension" do
-      translate('foo').should == ['/project/spec/foo_spec.rb']
+      translate('foo').should == ['spec/foo_spec.rb']
     end
     
     it "should consider all controllers, helpers and views when routes.rb changes" do
-      translate('config/routes.rb').should == ['/project/spec/controllers', '/project/spec/helpers', '/project/spec/views']
+      translate('config/routes.rb').should == ['spec/controllers', 'spec/helpers', 'spec/views']
     end
     
     it "should consider all models when config/database.yml changes" do
-      translate('config/database.yml').should == ['/project/spec/models']
+      translate('config/database.yml').should == ['spec/models']
     end
     
     it "should consider all models when db/schema.rb changes" do
-      translate('db/schema.rb').should == ['/project/spec/models']
+      translate('db/schema.rb').should == ['spec/models']
     end
     
     it "should consider related model when its observer changes" do
-      translate('app/models/user_observer.rb').should == ['/project/spec/models/user_observer_spec.rb', '/project/spec/models/user_spec.rb']
+      translate('app/models/user_observer.rb').should == ['spec/models/user_observer_spec.rb', 'spec/models/user_spec.rb']
     end
     
     it "should consider all specs when spec_helper changes" do
-      translate('spec/spec_helper.rb').should == ['/project/spec']
+      translate('spec/spec_helper.rb').should == ['spec']
     end
     
     it "should consider all specs when code under spec/shared/ changes" do
-      translate('spec/shared/foo.rb').should == ['/project/spec']
+      translate('spec/shared/foo.rb').should == ['spec']
     end
     
     it "should consider all specs when app configuration changes" do
-      translate('config/environment.rb').should == ['/project/spec']
-      translate('config/environments/test.rb').should == ['/project/spec']
-      translate('config/boot.rb').should == ['/project/spec']
+      translate('config/environment.rb').should == ['spec']
+      translate('config/environments/test.rb').should == ['spec']
+      translate('config/boot.rb').should == ['spec']
     end
   end
   

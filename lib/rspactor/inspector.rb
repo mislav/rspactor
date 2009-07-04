@@ -67,9 +67,9 @@ module RSpactor
 
       candidates.map do |candidate|
         if candidate.index('spec') == 0
-          File.join(@root, candidate)
+          candidate
         else
-          File.join(@root, 'spec', candidate)
+          'spec/' + candidate
         end
       end
     end
