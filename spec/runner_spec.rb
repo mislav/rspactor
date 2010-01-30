@@ -96,8 +96,8 @@ describe RSpactor::Runner do
       end
       
       it "should run Listener" do
-        @listener.should_receive(:run).with('/my/path')
-        RSpactor::Listener.should_receive(:new).with(instance_of(Array)).and_return(@listener)
+        @listener.should_receive(:start).with('/my/path')
+        RSpactor::Listener.should_receive(:new).with(:extensions => instance_of(Array)).and_return(@listener)
         setup
       end
     end

@@ -27,7 +27,7 @@ module RSpactor
       end
     end
 
-    def run(directories)
+    def start(directories)
       @dirs = Array(directories)
       stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, @dirs, OSX::KFSEventStreamEventIdSinceNow, 0.5, 0)
       unless stream
