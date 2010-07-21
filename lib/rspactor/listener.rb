@@ -4,12 +4,14 @@ OSX.require_framework '/System/Library/Frameworks/CoreServices.framework/Framewo
 module RSpactor
   # based on http://rails.aizatto.com/2007/11/28/taming-the-autotest-beast-with-fsevents/
   class Listener
-    attr_reader :last_check, :callback, :options, :dirs
+    attr_reader :last_check, :callback, :options, :dirs, :force_changed
 
-    # {:extensions => ['rb', 'haml'], :relative_paths => true}
+    # Options examples:
+    #   {:extensions => ['rb', 'haml'], :relative_paths => true, :latency => .5}
     def initialize(options = {})
       @options = options
       timestamp_checked
+      @force_changed = []
       
       @callback = lambda do |stream, ctx, num_events, paths, marks, event_ids|
         changed_files = extract_changed_files_from_paths(split_paths(paths, num_events))
@@ -29,7 +31,9 @@ module RSpactor
 
     def start(directories)
       @dirs = Array(directories)
-      @stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, @dirs, OSX::KFSEventStreamEventIdSinceNow, 0.5, 0)
+      since = OSX::KFSEventStreamEventIdSinceNow
+      
+      @stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, @dirs, since, options[:latency] || 0.0, 0)
       unless @stream
         $stderr.puts "Failed to create stream"
         exit(1)
@@ -82,7 +86,9 @@ module RSpactor
     end
 
     def file_changed?(file)
-      File.stat(file).mtime > last_check
+      return true if force_changed.delete(file)
+      file_mtime = File.stat(file).mtime
+      file_mtime > last_check
     rescue Errno::ENOENT
       false
     end
