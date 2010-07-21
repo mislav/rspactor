@@ -29,25 +29,33 @@ module RSpactor
 
     def start(directories)
       @dirs = Array(directories)
-      stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, @dirs, OSX::KFSEventStreamEventIdSinceNow, 0.5, 0)
-      unless stream
+      @stream = OSX::FSEventStreamCreate(OSX::KCFAllocatorDefault, callback, nil, @dirs, OSX::KFSEventStreamEventIdSinceNow, 0.5, 0)
+      unless @stream
         $stderr.puts "Failed to create stream"
         exit(1)
       end
 
-      OSX::FSEventStreamScheduleWithRunLoop(stream, OSX::CFRunLoopGetCurrent(), OSX::KCFRunLoopDefaultMode)
-      unless OSX::FSEventStreamStart(stream)
+      OSX::FSEventStreamScheduleWithRunLoop(@stream, OSX.CFRunLoopGetCurrent, OSX::KCFRunLoopDefaultMode)
+      unless OSX::FSEventStreamStart(@stream)
         $stderr.puts "Failed to start stream"
         exit(1)
       end
+      
+      return self
+    end
 
+    def enter_run_loop
       begin
         OSX::CFRunLoopRun()
       rescue Interrupt
-        OSX::FSEventStreamStop(stream)
-        OSX::FSEventStreamInvalidate(stream)
-        OSX::FSEventStreamRelease(stream)
+        stop
       end
+    end
+    
+    def stop
+      OSX::FSEventStreamStop(@stream)
+      OSX::FSEventStreamInvalidate(@stream)
+      OSX::FSEventStreamRelease(@stream)
     end
 
     def timestamp_checked

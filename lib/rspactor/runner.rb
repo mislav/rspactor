@@ -33,7 +33,7 @@ module RSpactor
 
       Listener.new(:extensions => Inspector::DEFAULT_EXTENSIONS) do |files|
         spec_changed_files(files) unless git_head_changed?
-      end.start(dir)
+      end.start(dir).enter_run_loop
     end
     
     def load_dotfile
