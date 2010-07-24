@@ -7,7 +7,7 @@ module RSpactor
     attr_reader :last_check, :callback, :options, :dirs, :force_changed
 
     # Options examples:
-    #   {:extensions => ['rb', 'haml'], :relative_paths => true, :latency => .5}
+    #   {:extensions => ['rb', 'haml'], :relative_paths => true, :latency => .1}
     def initialize(options = {})
       @options = options
       timestamp_checked

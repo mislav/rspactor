@@ -1,3 +1,6 @@
+/* Based on the code from:
+ * http://github.com/svoop/autotest-fsevent/blob/master/ext/fsevent/fsevent_sleep.c
+ */
 #include <CoreServices/CoreServices.h>
 
 void callback(ConstFSEventStreamRef streamRef,
@@ -11,21 +14,37 @@ void callback(ConstFSEventStreamRef streamRef,
   int i;
   char **paths = eventPaths;
   for (i = 0; i < numEvents; i++) {
+    if (i > 0) printf("%c", 0);
     printf("%s", paths[i]);
-    printf(" ");
   }
   printf("\n");
   fflush(stdout);
 }
 
-int main (int argc, const char * argv[]) {
+int main(int argc, const char *argv[]) {
+  // TODO: GNU getopt()
+  if (argc != 2 || strncmp(argv[1], "-h", 2) == 0) {
+    printf("Usage: %s /path/to/dir [/path/to/another ...]\n", argv[0]);
+    exit(1);
+  }
+  
+  int i;
+  int numDirs = argc - 1;
+  CFStringRef *dirs[numDirs];
+  
   // Create event stream
-  CFStringRef pathToWatch = CFStringCreateWithCString(kCFAllocatorDefault, argv[1], kCFStringEncodingUTF8);
-  CFArrayRef pathsToWatch = CFArrayCreate(NULL, (const void **)&pathToWatch, 1, NULL);  
+  for (i = 1; i < argc; i++) {
+    dirs[i - 1] = (CFStringRef *) CFStringCreateWithCString(
+      kCFAllocatorDefault,
+      argv[i],
+      kCFStringEncodingUTF8
+    );
+  }
+  CFArrayRef pathsToWatch = CFArrayCreate(NULL, (const void **)dirs, numDirs, NULL);
+  
   void *callbackInfo = NULL;
-  FSEventStreamRef stream;
-  CFAbsoluteTime latency = 0.5;
-  stream = FSEventStreamCreate(
+  CFAbsoluteTime latency = 0.1;
+  FSEventStreamRef stream = FSEventStreamCreate(
     kCFAllocatorDefault,
     callback,
     callbackInfo,
