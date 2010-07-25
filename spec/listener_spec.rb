@@ -9,11 +9,16 @@ describe RSpactor::Listener do
     @listener.last_check.should be_instance_of(Time)
   end
   
+  it "should construct a valid glob pattern" do
+    @listener.glob_pattern.should == '*.{rb,erb,haml}'
+  end
+  
   it "should not ignore regular directories" do
     @listener.ignore_path?('/project/foo/bar').should_not be
   end
   
   it "should ignore .git directories" do
+    @listener.ignore_path?('/project/.git').should be
     @listener.ignore_path?('/project/.git/index').should be
   end
   
