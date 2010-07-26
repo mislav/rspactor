@@ -79,9 +79,9 @@ listener = RSpactor::Listener.new do |changed_files|
         end
 
         if $?.success?
-          Growl::notify $title, "You rock!", Growl::image_path('success')
+          Growl::notify($title, "You rock!", :success)
         else
-          Growl::notify $title, "YOU LOSE", Growl::image_path('failed')
+          Growl::notify($title, "YOU LOSE", :failed)
         end
       elsif $mappings.empty?
         $stderr.puts "-- don't know how to run #{changed_file}"

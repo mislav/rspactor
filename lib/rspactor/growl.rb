@@ -2,15 +2,23 @@ module RSpactor
   module Growl
     extend self
     
-    IMAGE_PATH = File.expand_path File.dirname(__FILE__) + "/../../images/%s.png"
+    ICON_PATTERN = File.expand_path('../images', __FILE__) + '/%s.png'
     
-    def notify(title, msg, img, pri = 0)
-      system("growlnotify -w -n rspactor --image #{img} -p #{pri} -m #{msg.inspect} #{title} &") 
+    def notify(title, message, img = nil, priority = 0)
+      img = icon_path(img) if Symbol === img
+      
+      args = %w[--name rspactor]
+      args << '--image' << img if img
+      args << '--priority' << priority
+      args << '--message' << message
+      args << title
+      
+      system('growlnotify', *args) 
     end
     
     # failed | pending | success
-    def image_path(icon)
-      IMAGE_PATH % icon
+    def icon_path(name)
+      ICON_PATTERN % name
     end
   end
 end
