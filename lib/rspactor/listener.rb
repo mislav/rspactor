@@ -13,12 +13,15 @@ module RSpactor
       @pipe = nil
       timestamp_checked
     end
+    
+    def self.fsevent_bin
+      @fsevent_bin ||= File.expand_path('../../../bin/fsevent_watch', __FILE__)
+    end
 
     def start(directories)
       @dirs = Array(directories)
-      watcher = File.expand_path('../../../bin/fsevent_watch', __FILE__)
       # FIXME: support directories with spaces in them
-      @pipe = IO.popen("#{watcher} #{@dirs.join(' ')}", 'r')
+      @pipe = IO.popen("#{self.class.fsevent_bin} #{@dirs.join(' ')}", 'r')
       return self
     end
     
@@ -66,6 +69,7 @@ module RSpactor
     end
     
     def fire_callback(files)
+      files = Array(files)
       relativize_path_names(files) if options[:relative_paths]
       timestamp_checked
       @callback.call(files) unless files.empty?
